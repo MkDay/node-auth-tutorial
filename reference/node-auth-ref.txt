@@ -1,0 +1,1422 @@
+$ node auth tutorial
+
+# video 1: intro setup
+
+1. create smoothie recipes web site
+    * header
+        - navbar (with the heading and login signup buttons)
+    * footer
+        - just a footer 
+    * home page
+        - smoothie image
+        - details (h2 & h3)
+        - button for view recipes   
+    * smoothies page (6 recipes with the following format) 
+        - smoothie image
+        - recipe title
+        - ingredients
+        
+    * signup page - will create in the next video
+    * login page - will create in the next video
+
+# video 2: auth routes & controllers
+
+1. create routes for login signup:
+    * create routes folder.
+    * create authRoutes.js file in that folder.
+    * create routes for,
+        (i) get request for signup page
+        (ii) get request for login page
+        (iii) post request for signup page ( store data about the user who is signed up newly)
+        (iv) post request for login page (get the user login details and compare with db and authorize to access)
+        (v) get request for log out (will disscuss on a later video)
+
+    * destructuring the 'Router' from express package.
+        const { Router } = require('express');
+    * create instance of Router.
+        const router = Router();
+    * attach get & post requests into that router.
+        router.get('/signup');
+        router.post('/signup');
+        router.get('/login');
+        router.post('/login');
+    * export the router.
+        module.exports = router;
+
+2. create controllers for login signup
+    * create controllers folder.
+    * create authController.js file
+    * create these functions:
+        - const signup_get = (req, res) => { res.render('signup'); };
+        - const signup_post = (req, res) => { res.send('new signup'); };
+        - const login_get = (req, res) => { res.render('login'); };
+        - const login_post = (req, res) => { res.send('new login'); };
+    * export all of them.
+        module.exports = {
+            signup_get,
+            signup_post,
+            login_get,
+            login_post
+        }
+
+3. create views for login signup
+    * create view pages for 'signup' and 'login' pages in the view folder.
+    * signup page: 
+        <%- include('partial/header'); -%>
+            <h1>Signup</h1>
+        <%- include('partial/footer'); -%>
+    * login page
+        <%- include('partial/header'); -%>
+            <h1>Login</h1>
+        <%- include('partial/footer'); -%>
+
+4. require authController.js into authRoutes.js
+    const { Router } = require('express');
+
+    const authController = require('../controllers/authController');
+    const router = Router();
+
+        router.get('/signup', authController.signup_get);
+        router.post('/signup', authController.signup_post);
+        router.get('/login', authController.login_get);
+        router.post('/login', authController.login_post);
+
+    module.exports = router;
+
+5. require authRoutes.js into app.js
+    require('./routes/authRoutes');
+    .
+    .
+    .
+    app.use(authRoutes);
+
+
+# video 3: testing routes & handling postman
+1. setup postman
+    * go to postman
+    * signup for free
+    * download desktop app
+    * signup again and confirm email
+    * now open up the postman app
+
+2. create new http request
+    * set request type as GET
+    * type url : http://localhost:3000/
+    * then press SEND button
+    * it responses with raw HTML code in the response tab.
+    * play a bit around with.
+        (i) get the smoothies page
+            - request type: GET
+            - url: http://localhost:3000/smoothies
+            - press SEND 
+        (ii) get signup page
+            - request type: GET
+            - url: http://localhost:3000/signup
+            - SEND (will get the text 'new signup')
+        (iii) get login page
+            - request type: GET
+            - url: http://localhost:3000/login
+            - SEND (will get the text new login)
+
+3. POST request
+    * change the request type as POST.
+    * type url, http://localhost:3000/signup
+    * go to the 'Body' tab.
+    * check the radio button at 'raw'.
+    * change the data format as 'JSON'.
+    * now enter some user signup detail as JSON data into the following box.
+        {
+            "email": "luigi@ninja@gmail.com",
+            "password": "test1234"
+        }
+
+    * then press SEND.
+    * make sure before pressing SEND button app should be kept listening to the web browser (by typing 'node app' in terminal & press ENTER)
+    * now we'll get the text 'new signup' as the response in postman.
+    * we can do the same thing for login.
+        - go to 'Body' tab
+        - check radio button 'raw'
+        - set data type as 'JSON'
+        - create user login detail in JSON format
+            {
+                "email": "luigi@ninja@gmail.com",
+                "password": "test1234"
+            }
+        - request type: POST
+        - url: http://localhost:3000/login
+        - SEND
+
+4. get request body
+    * go to app.js
+    * add this middleware right after the static middleware,
+        app.use(express.json())
+    * go to authController.js
+    * go signup_post function
+    * get the request body as a console message.
+        console.log(req.body); 
+    * now go to postman and make a POST request for signup url, as we did above.
+    * then in vscode terminal, you can see the user signup object.
+    * to get data more clearly, we can use object destructuring method too..
+        const {email, password} = req.body;
+        console.log(email, password);
+
+5. what is postman 
+    * we use postman to test whether our requests are working or not.
+    * like here, we will create a signup and login form later.
+    * but before creating forms to get those user signup and login data, we wanna test out our http request (GET & POST) are working or not.
+    * that's why postman is there for.
+    * it behaves like a browser, but it doesn't show web pages as the browser does.
+    * instead it shows raw HTML code for a GET request.
+    * basically what it does is get the request and show the response.
+
+
+# video 4: user models
+
+1. create user schema and export
+    * create a folder called 'models'
+    * create a file called 'User.js' (U is capital)
+    * in the User.js file,
+        - require mongoose,
+            const mongoose = require('mongoose');
+        - create mongoose Schema instance
+            const userSchema = new mongoose.Schema({
+                email: {
+                    type: String,
+                    required: true,
+                    unique: true,
+                    lowercase: true
+                },
+                password: {
+                    type: String,
+                    required: true,
+                    minLength: 6
+                }
+            });
+
+        - create the User model using userSchema
+            const User = mongoose.model('user', userSchema);
+        
+        - export it.
+            module.exports = User;
+
+2. require user model into authController.js
+    * require User.js
+        const User = require('../models/User');
+    * go to authController.js file.
+    * make signup_post function as follows.
+
+    const signup_post = async (req, res) => {
+    const { email, password } = req.body;
+    
+    try {
+
+        const user = await User.create({ email, password });
+        res.status(201).json(user); // convert into JSON object
+
+    } catch(err) {
+        console.log(err);
+        res.status(400).send('User not created');
+    }
+};
+
+    * make both signup_post & login_post functions as async.
+    * because User.create({...}) function is an asynchronous function. 
+
+3. store user signup data into mongoDB using postman
+
+    * go to postman and create post request with user signup data in JSON format.
+    * press SEND (make sure to app should be listening for requests)
+    * then you can see that user signup datails are now in the mongoDB database.
+    * and postman also shows data as the response.
+
+# video 5: mongoose validation
+
+1. add eror messages into properties 'required' & 'minlength' for each email and password schemas.
+
+    * we've define email and password are required and minimum length of password is 6 charactors.
+    * but if it doesn't okay we should provide an error for each cases as follows.
+    
+            email: {
+                ...
+                required: [true, 'message for if there is no email entered'],
+                ...
+            },
+            password: {
+                ...
+                required: [true, 'message for if there is no password entered']
+                minlength: [6, 'message for if the password doesn't have 6 charactors']
+            } 
+
+2. validate emails
+    * there is a package called 'validator' to validate emails.
+    * it has a method called 'isEmail' that returns the email is valid or not.
+   
+    * so install it.
+        npm install validator --save<enter> 
+
+    * now require validator at User.js and destructure the method 'isEmail' from it.
+        const { isEmail } = require('validator');  
+
+    * add a property called 'validate' into email schema as follows.
+
+        email: {
+            ...
+            validate: [isEmail, 'message for if the email is not valid']
+        }
+
+3. handle errors
+
+    * instead getting an error as a console message we can display error messages to the user.
+    * so to do that create 'handleErrors()' function.
+    * it can get error message and error code.
+    * error code is undefined for most of the errors. but when handling duplicate emails, we're gonna use it.
+
+        const handleErrors = (err) => {
+            console.log(err.message, err.code);
+        }
+    * now we've got the error message as 'user validation failed' which is we're gonna handle.
+    * so check if there is that error.
+
+        const handleErrors = (err) => {
+            console.log(err.message, err.code);
+
+            if(err.message.includes('user validation failed')) {
+                /* .... */
+            }
+        }
+
+    * create an object called 'errors' to store appropriate error messages that come along with email & password.
+        const handleErrors = (err) => {
+            console.log(err.message, err.code);
+
+            let errors = { email: '', password: '' };
+
+            if(err.message.includes('user validation failed')) {
+                /* .... */
+            }
+        }
+
+    * now we want to extract the error messages that come along with email and/or password.
+    * and assign them into errors object and return it.
+    * the 'err' object has 'errors' object.
+
+    * and values of 'err.errors' object has an object called 'properties'.
+    * if we get object values of err.errors as follows.
+        Object.values(err.errors)
+    
+    * then we'll get an array as follows.
+    [
+        ValidatorError: {
+            properties: {
+                validator: [Function (anonymous)],
+                message: 'Please enter an email',
+                type: 'required',
+                path: 'email',
+                value: ''
+            },
+            kind: 'required',
+            path: 'email',
+            value: '',
+            reason: undefined,
+            [Symbol(mongoose:validatorError)]: true
+        },
+  
+        ValidatorError: {
+            properties: {
+                validator: [Function (anonymous)],
+                message: 'Please enter a password with 6 minimum charactors',
+                type: 'minlength',
+                minlength: 6,
+                path: 'password',
+                value: '112'
+            },
+            kind: 'minlength',
+            path: 'password',
+            value: '112',
+            reason: undefined,
+            [Symbol(mongoose:validatorError)]: true
+        }
+    ];
+
+    * so we have an array so that we can iterate through it using 'forEach method'.
+    * and extract 'path' and 'message' properties from 'properties' object.
+
+    const handleErrors = (err) => {
+    console.log(err.message, err.code);
+
+    let errors = { email: '', password: ''};
+
+    if(err.message.includes('user validation failed')) {
+
+        //console.log(err);
+        //console.log(Object.values(err.errors));
+
+        Object.values(err.errors).forEach(({ properties }) => {
+            // console.log(properties.path);
+            // console.log(properties.message);
+            errors[properties.path] = properties.message;
+        });    
+    }
+    return errors;
+};
+
+    * now we have returned errors object and we can output it at catch block like below.
+        catch(err) {
+        //console.log(err);
+        const error = handleErrors(err);
+        //res.status(400).send('User not created');
+        res.status(400).json({ error });
+    }
+
+
+
+4. handle duplicates
+
+    * if we try to register an email that is already there in the database we'll get error.
+    * because we set 'unique: true' at the 'email' schema.
+    * so try to add duplicate email into db and we'll get an error code which is 11000.
+    * so then we can check for that error code and return an error message.
+
+        if( err.code === 11000 ) {
+        errors.email = 'That email is already registered'
+
+        return errors;
+        }
+    
+
+5. now userSchema, handleErrors() function and catch block look like below.
+
+
+    /* ====== User.js ============ */
+
+const userSchema = new mongoose.Schema({
+    email: {
+        type: String,
+        required: [true, 'Please enter an email'],
+        unique: true,
+        lowercase: true,
+        validate: [isEmail, 'Please enter a valid email']
+    },
+    password: {
+        type: String,
+        required: [true, 'Please enter an password'],
+        minlength: [6, 'Please enter a password with 6 minimum charactors']
+    }
+});
+
+
+/* =========== authController.js ================ */
+
+/* handle errors */
+
+const handleErrors = (err) => {
+    console.log(err.message, err.code);
+
+    let errors = { email: '', password: ''};
+
+    // handle duplicate emails
+
+    if( err.code === 11000 ) {
+        errors.email = 'That email is already registered'
+
+        return errors;
+    }
+    // validate errors
+
+    if(err.message.includes('user validation failed')) {
+        //console.log(err);
+        //console.log(Object.values(err.errors));
+        Object.values(err.errors).forEach(({ properties }) => {
+            // console.log(properties.path);
+            // console.log(properties.message);
+            errors[properties.path] = properties.message;
+        });    
+    }
+    return errors;
+};
+
+/* catch block */
+catch(err) {
+        //console.log(err);
+        const error = handleErrors(err);
+        //res.status(400).send('User not created');
+        res.status(400).json({ error });
+    }
+
+
+
+# video 6: mongoose hooks
+
+1. 'post' means after the defined event which is 'save'.
+2. 'pre' means before the defined event which is 'save'.
+3. in each case we use next() method because .post() and .pre() are middlewares.
+4. doc means the data that we're saving into the db.
+5. we don't use 'doc' with .pre() because at that moment we haven't created doc yet. it's right before creating doc.
+
+
+// fire a function after saving the doc into db
+
+userSchema.post('save', function(doc, next) {
+    console.log('new user was created and saved', doc);
+    next();
+});
+
+// fire a function before saving doc into db
+userSchema.pre('save', function(next) {
+    console.log('new user is about to created and saved', this);
+    next();
+});
+
+# video 7: hashing password
+
+                    user password   --->  hashing algorithm ---> hash password
+                    /
+             add salt
+
+                    test123 ---> hashing algorithm ---> $f56&dE31Sgkjejjfegjw8503
+                    /
+            fgr54ftest123
+
+1. install bcrypt
+2. require bcrypt at User.js
+    const bcrypt = require('bcrypt');
+
+3. hash the password like below in the .pre() function
+
+    // fire a function before saving doc into db
+userSchema.pre('save', async function(next) {
+    //console.log('new user is about to created and saved', this);
+
+    const salt = await bcrypt.genSalt();
+    this.password = await bcrypt.hash(this.password, salt);
+
+    next();
+});
+
+4. now delete all the users without hashed passwords from db.
+
+# video 8: auth views
+
+1. create signup view
+
+<%- include('partial/header'); -%>
+
+<form>
+    <h2>Sign up</h2>
+    <label for="email">Email:</label>
+    <input type="text" name="email" required>
+    <div class="email-error error"></div>
+
+    <label for="password">Password:</label>
+    <input type="password" name="password" required>
+    <div class="password-error error"></div>
+
+    <button class="form-btn">Sing up</button>
+</form>
+
+<script>
+    const form = document.querySelector('form');
+
+    form.addEventListener('submit', (e) => {
+        e.preventDefault();
+
+        const email = form.email.value;
+        const password = form.password.value;
+
+        console.log(email, password);
+    });
+</script>
+<%- include('partial/footer'); -%>
+
+2. create login view
+
+<%- include('partial/header'); -%>
+
+<form>
+    <h2>Log in</h2>
+    <label for="email">Email:</label>
+    <input type="text" name="email" required>
+    <div class="email-error error"></div>
+
+    <label for="password">Password:</label>
+    <input type="password" name="password" required>
+    <div class="password-error error"></div>
+
+    <button class="form-btn">Log in</button>
+</form>
+
+<script>
+    const form = document.querySelector('form');
+
+    form.addEventListener('submit', (e) => {
+        e.preventDefault();
+
+        const email = form.email.value;
+        const password = form.password.value;
+
+        console.log(email, password);
+    });
+</script>
+
+<%- include('partial/footer'); -%>
+
+3. add some styles to form, input, lable and button.
+
+4. inside <script></script> tag we get email & password as console output.
+5. so we have email and password that the user has been entered in signup/login form.
+
+# video 9: cookies primer
+
+app.get('/set-cookies', (req, res) => {
+
+    //res.setHeader('Set-Cookie', 'newUser=true');
+
+    res.cookie('newUser', false);
+    res.cookie('isEmployee', true, { maxAge: 1000 * 60 * 60 * 24, secure: true, httpOnly: true });
+
+    res.send('you got the cookie!');
+
+    
+});
+
+app.get('/read-cookies', (req, res) => {
+
+    const cookies = req.cookies;
+    console.log(cookies);
+ 
+    res.json(cookies); // cookies send out to the browser as js object as a response  
+});
+
+
+1. set cookies using setHeader()
+    * go to app.js
+    * create to GET handler for the url 
+        - '/set-cookies'
+        - '/read-cookies'
+
+    * in '/set-cookies' GET handler, we can set cookies using res.setHeader() method.
+        res.setHeader('Set-Cookie', 'newUser=true');
+
+    * now go to the chrome dev tool and go to the 'application' tab then select 'cookies'.
+    * there is our url underneath the cookies so select it.
+    * now we can see our cookie in a table.
+    * the table has 11 columns
+    name    value   domain  path    expires/maxAge  size    httpOnly    secure  sameSite    sameParty   partitionKey   priority
+    newUser  true                       Session
+
+    * Session means if we close the browser window the cookie that we store will be removed.
+    * otherwise even we go to another web page in the same website it still remains
+
+2. access cookies in front-end (using javascript console)
+    * go to console and type
+        document.cookie<enter>
+    
+3. cookie-parser
+    * we can use 'cookie-parser' to set & read cookies easier than we've done with 'res.setHeader()'.
+    * install cookie-parser
+        npm install cookie-parser --save<enter>
+
+4. cookie-parser middleware
+    * require it
+        const cookieParser = require('cookie-parser');
+
+    * we can use it as a middleware, so invoke it inside 'app.use()' 
+        app.use(cookieParser());
+
+
+5. set cookies using cookie-parser
+    * now we can set cookies like below.
+         res.cookie('newUser', false);
+    * the reason we're setting the value as false is, 'newUser' cookie is already there in the browser.
+    * so we don't have to recreate it other than we can update that value from true to false.
+
+6. another argument of the res.cookie() method
+    * res.cookie() method can take three arguments like below.  
+        res.cookie(name, value, { option object })
+    * option object has the following options
+        - maxAge: /* when the cookie should be expired */
+        - secure: 
+            true (only set cookies for secured urls - urls that starts with https)
+            false (can set cookies for http or https)
+        - httpOnly:
+            true (if true we can't access cookies in front-end - in js console)
+            false (we can access in js console)
+
+
+
+7. read cookies
+
+    * we can read cookies in any handler in our app using request object.
+    * but here, we create separate GET handler to read cookies
+        app.get('/read-cookies', (req, res) => {})
+
+    * we can access cookies like below.
+    
+    app.get('/read-cookies', (req, res) => {
+
+    const cookies = req.cookies;
+    console.log(cookies);
+ 
+    res.json(cookies); // cookies send out to the browser as js object as a response  
+});
+
+# video 10: json web token (theory)
+
+1. how do the cookies work?
+
+    * first let me clarify how server-side cookies work.
+    * if the server asks to set the cookie using,
+        res.setHeader('set-cookie', 'myCookie=somthing');
+    * then we can see it at Response-Header like below.
+        set-cookie: 'myCookie=somthing'
+    * then that cookie will be stored in the browser.
+    * after in each request that browser made that cookie goes along with that request to the server.
+    
+    * cookie route:
+
+    browser                                         server
+    first request makes ------------------------>   makes the response
+                                                        |
+            <------------------------------------   ask to set cookie along with the response
+            |
+    set & store that cookie in browser
+            |
+    browser makes requests --------------------->  server gets (every request + cookie)
+
+
+2. how to authenticate an user via JWT
+
+    * user fill the login/signup form 
+    * server gets the form data and check them against the user credentials in database 
+    * or if it's an user signup, then store the new user in the db.
+    * if the checking is passed then create a JWT by the server.
+    * send it to the browser.
+    * browser store that JWT in a cookie.
+    * then the browser allows the user to login/signup.
+    * after that, the JWT goes along with every request that the user makes, to the server.
+    * so the server can shows the user the data and pages that is required user-credentials to see.
+
+
+login form                              server
+  email & password ----------------->   check those email & password against the user credentials in database 
+                                            |
+                                        user signed up or logged in
+                                            |
+                                        create JWT
+                                            | 
+  browser stores JWT in a cookie <---   send it to the browser
+                |
+  
+                |
+  every request + JWT -------------->   server recognizes the user
+                                            |
+                                        server will show the data that is reserved for only logged in users to the user 
+
+
+3. how to create JWT headers, payload & signature
+
+    a. headers: tells the browser the type of the signature is being used
+    b. payload: contains user identification
+    c. signature: make the token secure (ties everything together to make them secure, it's like a stamp of authenticity.)
+
+
+
+
+login form                              server
+  email & password ----------------->   check those email & password against the user credentials in database 
+                                            |
+                                         user signed up or logged in
+                                            |                                  
+                                        create JWT headers & payload
+                                            |
+                                        encodes the both headers & payload together 
+                                            |
+                                        hash the both of them together with the 'secret' (secure secret string) 
+                                            |
+                                        stores it in the server 
+                                            |
+                                        creates token signature
+                                            |
+                                        add it end of the JWT
+                                            |
+                                        headers.payload.signature
+                                            |
+                                        now JWT is created
+                                            |
+store it in a cookie <----------------- send it to the browser
+        |                                    
+send JWT with every request ----------> get recieved JWT 
+                                            |
+                                        encode & hash it with 'secret'
+                                            |                               
+                                        match it with signature token
+                                            |
+                                        if match user can be authenticated else JWT might be tamperd in client-side  
+
+
+    
+    * after the user is logged in, the server create JWT headers & payload.
+    * headers includes something similar to meta data, it tells the type of signature is being used here.
+    * payload includes user id, it uses to identify the user.
+    * then the server encodes both of them and hashes them up with 'secret'.
+            encodes(headers & payload) --> hashes(headers & payload with secret)
+    * 'secret' is a secure secret string, it is the key to unlock headers & payload later.
+    * since it is the key to verify the token, make sure to protect your 'secret' from others. 
+    * now we have encoded and hashed 'headers.payload'.
+    * then the server creates the signature token and add it end of the JWT.
+    * now your JWT looks like this: 
+            headers.payload.signature
+        eg: eyJhbGciOiJIUz.eyJzdWIiOiIxMjM.SflKyJV_adQssw5c
+    * then the server send that JWT back to the browser and store it in a cookie.
+
+4. how to verify JWT 
+
+browser                                 server
+send JWT with every request ----------> get recieved JWT 
+                                            |
+                                        encode & hash it with 'secret'
+                                            |                               
+                                        match it with signature token
+                                            |
+                                        if match user can be authenticated else JWT might be tamperd in client-side  
+
+
+    
+    * in every request that browser made that JWT will be sent to the server.
+    * then get that JWT and encode it.
+    * hash it with the secret.
+    * then check against the signature token that stored in the server previousely.
+    * if the bothe are matched it is the same user who made the request 
+    * otherwise we can think that the JWT might be tampered in the client-side. 
+
+
+# video 11: new user signup (part 1)
+
+1. get user information from front-end
+
+    * go to the signup.ejs file.
+    * refer #video 8 where we made auth views for signup and login pages.
+    * at signup view, we have the email & the password that the new user has been created.
+    * so now we wanna send it to the server as a JSON object.
+    * to do so, create a fetch request like below.
+    * it requests the '/signup' page. 
+    * and it requests to 'POST' some data into the server, in our case it's email and password.
+    * also we wanna send that data in JSON format.
+    * that's why we set the 'Content-Type' as 'application/json' at Request-Headers.
+    * and we attach email & password into the 'request.body' after converting it into JSON format.
+    * now the request.body of the '/signup' page has email & password in JSON format.
+    * we can access that in authController.js now.
+   
+
+     try {
+            const result = await fetch('/signup', {
+                method: 'POST',
+                body: JSON.stringify({ email, password }),
+                headers: { 'Content-Type': 'application/json' }
+            });
+        } catch(err) {
+            console.log(err);
+        }
+    });
+
+2. create user
+
+    * refer #video 8 for more info about getting email & password from request.body
+    * now we have email & password that attached with request.body of the signup page.
+    * so we can extract them.
+         const { email, password } = req.body;
+
+    * now we have email & password that the user entered.
+    * and we can store that user into the db. 
+        const user = await User.create({ email, password });
+
+    * but after that we should allow the user to log in to the page immediately.
+    * to do so we should first create a jwt.
+
+3. create jwt
+
+    * install jwt
+        npm install jsonwebtoken --save<enter>
+    * require it at authController.js
+        const jwt = require('jsonwebtoken');
+    * create reuseable function called createToken(id) to create json web token.
+    * because it can use later on to authenticate the user login.
+    * the function takes an argument 'id'.
+    * jwt has a method called jwt.sign()
+    * it takes,
+        - payload as an object, in this case it is user id.
+        - secret, we can create any string as a secret later it will be used to verify the user.
+        - an optional object, here we can specify how long the user should be logged in to the web site. (here 3 days)
+    
+    * then we can return that token.
+
+let maxAge = 3 * 24 * 60 * 60;
+
+const createToken = (id) => {
+    return jwt.sign({ id }, 'jwt net ninja', {
+        expiresIn: maxAge
+    });
+};
+
+4. send jwt to the browser
+
+    * after creating the new user in database like below,
+        const user = await User.create({ email, password });
+    * we can create the jwt right after it using createToken(id) function.
+    * now we have a token.
+    * then we have to send it to the browser as a cookie using 'res.cookie()' method.
+    * and we send user id as a response to the front-end.
+        res.status(201).json({ user: user._id });
+
+     const token = createToken(user._id);
+
+        res.cookie('jwt', token, {
+            httpOnly: true,
+            maxAge: maxAge * 1000
+        });
+        
+        res.status(201).json(user._id);
+
+
+5. full code related to user authentication.
+
+const User = require('../models/User');
+const jwt = require('jsonwebtoken');
+
+// handle errors
+
+const handleErrors = (err) => {
+    console.log(err.message, err.code);
+
+    let errors = { email: '', password: ''};
+
+    // handle duplicate emails
+
+    if( err.code === 11000 ) {
+        errors.email = 'That email is already registered'
+
+        return errors;
+    }
+    // validate errors
+
+    if(err.message.includes('user validation failed')) {
+        //console.log(err);
+        //console.log(Object.values(err.errors));
+        
+        Object.values(err.errors).forEach(({ properties }) => {
+             //console.log(properties.path);
+             //console.log(properties.message);
+            errors[properties.path] = properties.message;
+        });    
+    }
+    return errors;
+};
+
+// create json web token
+
+let maxAge = 3 * 24 * 60 * 60;
+
+const createToken = (id) => {
+    return jwt.sign({ id }, 'jwt net ninja', {
+        expiresIn: maxAge
+    });
+};
+
+const signup_post = async (req, res) => {
+    const { email, password } = req.body;
+    
+    try {
+
+        const user = await User.create({ email, password });
+
+        const token = createToken(user._id);
+
+        res.cookie('jwt', token, {
+            httpOnly: true,
+            maxAge: maxAge * 1000
+        });
+        
+        res.status(201).json({ user: user._id });
+
+    } catch(err) {
+        //console.log(err);
+        const error = handleErrors(err);
+        //res.status(400).send('User not created');
+        res.status(400).json({ error });
+    }
+}; 
+
+# video 12: new user sign up (part 2)
+
+1. extract data from user signup info 
+    * in the signup.ejs view, we have fetch user signup info (email & password) as a JSON object.
+    * so we can get data from the response using '.json()' method.
+        const data = await result.json();
+    * so we can output that data into console to view what they look like.
+    * they will look like below,
+        - if the user fill and press signup button all correct, 
+            then we'll get the 'user: user._id' object in the console.
+                res.status(201).json({ user: user._id });
+
+        - if there is any error 
+            we'll get 'error' object.
+                const error = handleErrors(err);        
+                res.status(400).json({ error });
+    
+    * because we create those 'user' object and 'error' object at 'authController.js' previousely.
+    * so we can check errors that is occurred using 'data.error'.
+    * then we can show them in the error containers that we have created for the signup form.
+
+                emailError.textContent = data.error.email;
+                passwordError.textContent = data.error.password;
+
+    * and check if the user has enter the correct info using data.user and redirect the user to the home page.
+
+    const data = await result.json();
+
+            console.log(data);
+
+            if(data.error) {
+                emailError.textContent = data.error.email;
+                passwordError.textContent = data.error.password;
+            }
+
+            if(data.user) {
+                location.assign('/'); // user has entered successful data so redirect to home page
+            }
+
+2. reset errors
+    * if there is an error shown in the form and after that the user fix it, then we wanna disappear that error.
+    * to that add those lines after 'e.preventDefault()'
+
+            // reset errors
+
+            emailError.textContent = '';
+            passwordError.textContent = '';
+
+3. redirect the user to the home page
+    * if there is no errors and user signed up successfully then we wanna the user redirect to the home page
+            if(data.user) {
+                location.assign('/');
+            }
+
+
+# video 13: loggin users in (part 1)
+1. create submit action of the login form at login.ejs
+
+  part A: send the request to post email and password into the server.
+
+    * we have form DOM element and add it submit event listener.
+    * then prevent the default behavior which is after submitting the fome refresh the form 
+    * we use for it,
+        e.preventDefault();
+    * much like we did in signup form we extract email & password from the entered info.
+        const email = form.email.value;
+        const password = form.password.value;
+
+    * then we want to send that email & password to the server.
+    * for that we create fetch request for the '/login' page.
+    * request method is 'POST' to the server.
+    * and also we should send data in json format.
+    * so in 'request-headers' we set 'Content-Type'as 'application/json'.
+
+  part B: get the server response, and allow to the user to log in or show errors if there's any
+
+    * then we wanna extract data from the response using '.json()'.
+        const data = await result.json();
+    * (ref #video 8) we have handled errors at authController.js
+    * so we have that error object along with the data object if there is any error.
+
+            if(data.error) {
+                emailError.textContent = data.error.email;
+                passwordError.textContent = data.error.password;
+            }
+
+    * if there is no error then we have the { user: user._id } object as a response in the console. 
+    * and if there is no error we can redirect the user to the home page.
+            if(data.user) {
+                location.assign('/');
+            }
+
+  full code:
+
+ const form = document.querySelector('form');
+ const emailError = document.querySelector('.email-error');
+ const passwordError = document.querySelector('.password-error');
+
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        // reset errors
+        emailError.textContent = '';
+        passwordError.textContent = '';
+
+        const email = form.email.value;
+        const password = form.password.value;
+
+        //console.log(email, password);
+
+        try {
+            const result = await fetch('/login', {
+                method: 'POST',
+                body: JSON.stringify({ email, password }),
+                headers: { 'Content-Type': 'application/json' }
+            });
+
+            const data = await result.json();
+
+            console.log(data);
+
+            if(data.error) {
+                emailError.textContent = data.error.email;
+                passwordError.textContent = data.error.password;
+            }
+
+            if(data.user) {
+                //location.assign('/');
+            }
+           
+        } catch(err) {
+            console.log(err);
+        }
+    });
+
+2. create statics.login at User model
+
+    * now we have handled the front-end part.
+    * we get the email and password from the front-end and send it to the server.
+    * so we can access it to the email & password using request.body in the server-side.
+    * so go to the authController.js and go to the login_post() function.
+    * at there, we can access that req.body.
+
+    const login_post = async (req, res) => {
+        const { email, password } = req.body;
+        // ....
+    }
+   
+    * now we wanna check user-entered email & password against the email & password that are stored in the db.
+    * so to compare them we don't have any built-in fuction in mongoose.
+    * however, we can create statics function at the User model.
+    * create the userSchema.statics.login function, at User.js
+    * the function takes two arguments email & password.
+    * inside the function we can find a recorded user by using its email.
+         const user = await this.findOne({ email: email });
+
+    * if the user exists it returns true, so we know there is a user with that email.
+    * if not throw an error.
+
+    const user = await this.findOne({ email: email });
+
+    userSchema.statics.login = async function(email, password) {
+
+        if(user) {
+
+        }
+        throw Error('incorrect email');
+    };
+
+
+    * then we can check for the password of that user too.
+    * to do that we need to first hash the entered-password and compare it against the stored password.
+    * this can be done by the function bcrypt.compare() function.
+    * if it returns true the both passwords are matched else we can throw errors.
+
+      if(user) {
+        const auth = await bcrypt.compare(password, user.password);
+
+        if(auth) {
+            return user;
+        }
+        throw Error('incorrect password');
+    }
+    throw Error('incorrect email');
+
+  full code:
+
+userSchema.statics.login = async function(email, password) {
+    const user = await this.findOne({ email: email });
+
+    if(user) {
+        const auth = await bcrypt.compare(password, user.password);
+
+        if(auth) {
+            return user;
+        }
+        throw Error('incorrect password');
+    }
+    throw Error('incorrect email');
+};
+
+
+3. login_post
+
+    * now we have 'user.login()' function that has been created at User.js.
+    * so we use it at authController.js file loke below.
+
+const login_post = async (req, res) => {
+    const { email, password } = req.body;
+    
+   // get entered values and check them against the values stored at db
+
+   try {
+
+        const user = await User.login(email, password);
+        res.status(200).json({ user: user._id });
+
+   } catch(err) {
+        //console.log(err);
+
+        res.status(400).json({});
+   }
+
+    //console.log(email, password);
+    //res.send('new login');
+};
+
+
+# video 14: logging user in (part 2)
+
+1. handle errors
+
+    * remember we throw two errors at User.js if the user that asked for is not found in the db.
+    * one error for, incorrect email.
+    * the other error for incorrect password.
+    * we can get those errors at authController.js as well.
+    * in the catch block of the login_post function will catch those errors.
+
+    } catch(err) {
+        //console.log(err);
+        const error = handleErrors(err);
+        res.status(400).json({ error });
+   }
+
+    * so we can check for those errors using 'error.message'.
+    * so let's add those error checkings into our handleErrors() functions as follows.
+
+    if(err.message === 'incorrect email') {
+        errors.email = 'that email is not registered!';
+    }
+
+    if(err.message === 'incorrect password') {
+        errors.password = 'That password is incorrect!';
+    }
+
+    * now our full handleErrors() function looks like this.
+
+    const handleErrors = (err) => {
+    console.log(err.message, err.code);
+
+    let errors = { email: '', password: ''};
+
+    if(err.message === 'incorrect email') {
+        errors.email = 'that email is not registered!';
+    }
+
+    if(err.message === 'incorrect password') {
+        errors.password = 'That password is incorrect!';
+    }
+
+    // handle duplicate emails
+
+    if( err.code === 11000 ) {
+        errors.email = 'That email is already registered'
+
+        return errors;
+    }
+    // validate errors
+
+    if(err.message.includes('user validation failed')) {
+        //console.log(err);
+        //console.log(Object.values(err.errors));
+        
+        Object.values(err.errors).forEach(({ properties }) => {
+             //console.log(properties.path);
+             //console.log(properties.message);
+            errors[properties.path] = properties.message;
+        });    
+    }
+    return errors;
+};
+
+    * now we are handled the errors well.
+
+2. set json web token
+
+    * we add jwt as we did at signup form as follows.
+
+try {
+
+        const user = await User.login(email, password);
+
+        const token = createToken(user._id);
+
+        res.cookie('jwt', token, {
+            httpOnly: true,
+            maxAge: maxAge * 1000
+        });
+        
+        res.status(200).json({ user: user._id });
+
+   } 
+
+
+# video 15: protecting routes
+
+1. create a middleware to protect some routes from the user who are not logged in.
+
+    * create a folder called middleware
+    * create a file called authMiddleware.js inside it.
+    * there require jwt
+    * now create our middleware called 'requireAuth(req, res, next) => {}'
+    * first we can grab the jwt token
+        const token = req.cookies.jwt;
+    * then check there is the token or not
+    * if there is no jwt token we redirect the user to the '/login' page.
+    * if there is the jwt token we have to verify if the token is not edited or tampered.
+    * for that there is a method, 
+        jwt.verify(token, secret, function(err, decodedToken) {...})
+    * the 3rd argument is a function it takes 2 arguments 1st one is the error and the 2nd one is decoded token.
+    * if there is an error we also redirect to the '/login' page.
+    * otherwise we call the 'next()' middleware to carry on to the next thing.
+    * then exports requireAuth.
+
+
+
+const jwt = require('jsonwebtoken');
+
+const requireAuth = (req, res, next) => {
+
+    const token = req.cookies.jwt;
+
+    // if jwt exists 
+
+    if(token) {
+
+        // verify the jwt
+        
+        jwt.verify(token, 'jwt net ninja', (err, decodedToken) => {
+            if(err) {
+                console.log(err.message);
+                res.redirect('/login');
+            }
+            else {
+                console.log(decodedToken);
+                next();
+            }
+        });
+    } else {
+        res.redirect('/login');
+    }
+};
+
+module.exports = { requireAuth };
+
+module.exports = { requireAuth };
+
+2. protect '/smoothies' page using requireAuth middleware.
+
+    * go to app.js
+    * require requireAuth
+        const { requireAuth } = require('./middleware/authMiddleware');
+
+    * now add right before the '/smoothies' handler like below.
+
+    app.get('/smoothies', requireAuth, (req, res) => {
+    res.render('smoothies');
+});
+
+# video 16: logging user out
+
+1. create logout button 
+    * create logout button in the 'header.ejs' partial.
+     <ul class="login-signup">
+          <li class="logout"><a href="/logout">Log out</a></li>
+          <li class="login"><a href="/login">Log in</a></li>
+          <li class="signup"><a href="/signup">Sign up</a></li>
+      </ul>
+
+    * now go to routes folder
+    * create a route for the '/logout' url
+        router.get('/logout', authController.logout_get);
+
+    * now go to authController.js and create the following controller.
+
+    const logout_get = (req, res) => {
+    res.cookie('jwt', '', { maxAge: 1 });
+    res.redirect('/');
+    };
+
+    * we set the value of the jwt into an empty string and maxAge as 1 millisecond.
+    * then redirect to the home page.
+
+
+# video 17: checking the current user
+
+1. create checkUser() middleware
+
+    * go to middleware/authMiddleware.js
+    * create a middleware called checkUser()
+    * it is much similar to requireAuth() middleware
+    * we get the token 
+        const token = req.cookies.jwt;
+    * check if there is the token
+        if(token) {
+
+            } else {
+
+                }
+    * verify the token
+        jwt.verify(token, 'jwt net ninja', async (err, decodedToken) => {
+            if(err) {
+                console.log(err.message);
+            }
+            else {
+                console.log(decodedToken);
+            }
+        });
+
+    * now if there is no errors we wanna grab the user.
+    * to that we should require 'User' model into the authMiddle.js
+    * then we extract the user using 'User.findById()' and we have decoded token to grab the user id.
+        const user = await User.findById(decodedToken.id);
+
+    * now we have the user so then we should inject that user into the views.
+    * to do that we can use 'res.locals.xyz' method.
+    * we can display any value that is attached to '.xyz' method or variable.
+    * so we create,
+        res.locals.user = user;
+    * now we can access user in views.
+    * now if there is any error we set 'res.locals.user' to null and call 'next()'
+
+    
+
+const checkUser = (req, res, next) => {
+
+    const token = req.cookies.jwt;
+
+    if(token) {
+        jwt.verify(token, 'jwt net ninja', async (err, decodedToken) => {
+            if(err) {
+                console.log(err.message);
+                res.locals.user = null;
+                next();
+            }
+            else {
+                console.log(decodedToken);
+                const user = await User.findById(decodedToken.id);
+                res.locals.user = user;
+                next();
+            }
+        });
+    }
+    else {
+        res.locals.user = null;
+        next();
+    }
+}
+
+
+
+
+
+

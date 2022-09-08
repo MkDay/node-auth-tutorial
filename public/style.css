@@ -1,0 +1,406 @@
+@import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&display=swap');
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Quicksand', sans-serif;
+}
+
+/*
+navbar
+    h1
+    ul.login-signup
+        li.login
+        li.signup
+div.container
+    div.smoothie-image-container
+        smoothie-image
+    div.details
+        div.tagline
+            p
+        button.view-detail-btn
+footer
+*/
+
+body {
+    background: rgb(236, 223, 223);
+    width: 100vw;
+    height: 100vh;
+}
+
+/* navbar ------- */
+
+.navbar {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    height: 18%;
+    padding: 0.625rem;
+    background: rgb(216, 209, 209);
+    z-index: 1000;
+}
+
+/* navbar.h1 */
+
+.navbar h1 {
+    color: none;
+}
+
+.navbar h1 a {
+    text-decoration: none;
+    font-weight: 700;
+    color: rgb(245, 6, 165);
+}
+
+.navbar h1 a:hover, .navbar .login-signup li a:hover {
+    cursor: pointer;
+    color: rgb(243, 17, 54);
+}
+
+/* .login-signup -------- */
+
+.login-signup {
+    padding: 0.625rem;
+    margin-top: 0.625rem;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;   
+}
+
+.login-signup li {
+    list-style-type: none;
+    margin-right: 0.625rem;
+}
+.login-signup li a {
+    text-decoration: none;
+    color: rgb(163, 56, 128);
+    font-weight: 700;
+}
+
+.check-user {
+    font-size: 0.8rem;
+    font-weight: bold;
+    color: rgb(245, 6, 165);
+    padding: 0.625rem;
+}
+
+/* container ------- */
+
+.container {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    width: 40%;
+    margin-top: 5vh;
+    padding: 0.625rem;
+}
+
+.smoothie-image-container .smoothie-image {
+    width: 100px;
+    height: 140px;
+    background: none;
+    opacity: 0.6;
+}
+
+.container .details {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: space-between;
+}
+
+.details .tagline {
+    padding: 0.625rem;
+}
+
+.details .tagline h2 {
+    font-weight: 700;
+    color: rgb(130, 116, 212);
+    padding: 0.3rem;
+}
+
+.details .tagline h3 {
+    font-weight: 600;
+    color: rgb(150, 120, 120);
+    padding: 0.3rem;
+}
+
+.details .view-detail-btn {
+    background: rgb(7, 156, 202);
+    color: rgb(6, 17, 66);
+    font-size: 1.07rem;
+    font-weight: 700;
+    text-align: center;
+    padding: 0.625rem 0;
+    margin-top: 1rem;
+    border-radius: 20px;
+    border: none;
+    text-decoration: none;
+}
+
+.details .view-detail-btn:hover {
+    cursor: pointer;
+    background: rgb(5, 111, 143);
+    color: white;
+}
+
+/* footer ------- */
+footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 0 auto;
+    text-align: center;
+    font-size: 0.9rem;
+    color: rgba(150, 120, 120, 0.6);  
+}
+
+/* recipes page ------- */
+
+.recipes {
+    width: 75%;
+    height: 75%;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: space-evenly;
+    align-content: flex-start;
+    justify-items: space-evenly;
+    justify-content: center;
+    padding: 0.625rem;
+}
+
+.recipes .recipe {
+    display: flex;
+    justify-content: space-evenly;
+    align-content: space-evenly;   
+    align-items: center;
+    justify-items: flex-start;
+    flex-direction: column;
+    padding: 0.625rem;
+    margin: 1vh 1vw;
+    width: 200px;
+    height: 200px; 
+    border: none;
+    box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
+}
+
+.recipe .smoothie-image {
+    width: 95px;
+    height: 100px;
+    background: none;
+    opacity: 0.6;
+}
+
+.recipe h4 {
+    font-size: 1.2rem;
+}
+
+.recipe p {
+    font-size: 0.95rem;
+}
+
+/* signup page & login page -------- */
+
+form {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    align-items: flex-start;
+    width: 30vw;
+    box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
+    padding: 1.3rem;
+    margin: 2rem auto;
+    background: wheat;
+    color: rgba(86, 88, 90, 0.904);
+}
+
+form h2 {
+    text-align: center;
+}
+
+label {
+    padding: 0.625rem;
+    /* margin-top: 1rem; */
+    text-align: left;
+    font-weight: bold;
+    font-size: 0.8rem;
+}
+
+input {
+    padding: 0.625rem;
+    /* margin-top: 1rem; */
+    border: solid 1px #f4f4f4;
+    border-radius: 8px;
+    background: rgb(218, 203, 176);
+}
+
+.form-btn {
+    width: 60%;
+    background: rgba(30, 105, 167, 0.904);
+    color: white;
+    font-weight: bold;
+    border: none;
+    border-radius: 30px;
+    padding: 0.625rem 1.3rem;
+    text-align: center;
+    margin: 0 20%;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+}
+
+.form-btn:hover {
+    cursor: pointer;
+    background: rgb(5, 111, 143);
+}
+
+.error {
+    font-size: 0.7rem;
+    padding: 0.625rem;
+    width: auto;
+    height: auto;
+    color: rgb(245, 6, 165);
+    border: none;
+    /* box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px; */
+}
+
+
+
+/* media queries ------- */
+
+@media(max-width: 360px) {
+    * {
+        font-size: 0.6rem;
+    }
+    .navbar {
+        height: 10vh;
+    }
+}
+
+@media(max-width: 560px) {
+    .form-btn {
+        width: 100%;
+        font-size: 0.3rem;
+        padding: 0.2rem 0.4rem;
+        margin-left: 0.3rem;
+        margin-right: 0.3rem;
+    }
+}
+
+@media(max-width: 634px) {
+    form {
+        width: 20vw;
+        padding: 0.625rem;
+    }
+    form h2 {
+        font-size: 1.1rem;
+    }
+    label {
+        padding: 0.3rem;
+        font-size: 0.6rem;
+    }
+    input {
+        width: 40%;
+        height: 2.4vh;
+        padding: 0.3rem;
+        border-radius: 4px;
+    }
+    .form-btn {
+        font-size: 0.6rem;
+        padding: 0.3rem 0.625rem;
+        /* border-radius: 10px; */
+    }
+}
+
+@media(max-width: 725px) {
+    .navbar {
+        height: 8vh;
+    }
+    .navbar h1 {
+        font-size: 1rem;
+    }
+    .login-signup li {
+        font-size: 0.6rem;
+        margin-right: 0.3rem;
+    }
+    .container {
+        padding: 0.3rem;
+    }
+    .recipe {
+        width: 140px;
+        height: 130px;
+        margin: 0.5vh 0.5vw;
+    }
+    .recipe h4 {
+        font-size: 0.8rem;
+    }
+    .recipe p {
+        font-size: 0.6rem;
+    }
+    .recipe .smoothie-image {
+        width: 40px;
+        height: 50px;
+    }
+    /* form {
+        width: 20vw;
+    }
+    form h2 {
+        font-size: 1.1rem;
+    }
+    input {
+        width: 60%;
+        height: 2.4vh;    
+        border-radius: 4px; 
+        margin-top: 0.5rem;
+        padding: 0.3rem;
+    }
+    label {
+        font-size: 0.6rem;
+        margin-top: 0.5rem;
+        padding: 0.3rem;
+    }
+    .form-btn {
+        width: auto;
+        font-size: 0.5rem;
+        margin-top: 0.5rem;
+        margin-bottom: 0.5rem;
+        padding: 0.3rem 0.5rem;
+    } */
+    footer {
+        font-size: 0.5rem;
+    }
+}
+
+
+
+@media(max-width: 901px) {
+
+   .recipes .recipe {
+    padding: 0.625rem;
+    margin: 1vh 1vw;
+    width: 160px;
+    height: 170px; 
+    border: none;
+    box-shadow: rgba(99, 99, 99, 0.2) 0px 1px 6px 0px;
+    } 
+
+    .recipe h4 {
+        font-size: 1rem;
+    }
+
+    .recipe p {
+        font-size: 0.7rem;
+    }
+
+    .recipe .smoothie-image {
+        width: 65px;
+        height: 55px;
+    }
+}
+
